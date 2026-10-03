@@ -19,7 +19,8 @@ the same theme graphics as your panel so the two match.
 Right-click the widget → **Configure SysDash…**
 
 - **Appearance:** refresh rate, graph history length, animations, width
-  (auto, fixed, or *match the bottom taskbar*), spacing, text size,
+  (auto, fixed, or *match the bottom taskbar*), auto-centering, sitting a
+  set gap above the taskbar, spacing, text size,
   background style (match taskbar / Plasma widget / custom color, opacity and
   corner radius / none), section tile tint and radius
 - **Sections:** show or hide each section and almost every element in it

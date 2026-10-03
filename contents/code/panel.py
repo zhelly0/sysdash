@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Print the visible width of the bottom Plasma panel on the widget's screen.
+"""Print the bottom Plasma panel's visible geometry on a screen as JSON.
 
-Asks plasmashell through its scripting D-Bus API. Prints nothing if there is
-no bottom panel or its width can't be known (e.g. "fit content" mode).
+Asks plasmashell through its scripting D-Bus API and prints e.g.
+{"screenWidth": 5120, "width": 1472, "top": 1386}. "width" is 0 when it
+can't be known ("fit content" mode); without a bottom panel, "top" is the
+screen height.
 """
+import json
 import shutil
 import subprocess
 import sys
@@ -12,15 +15,21 @@ import sys
 FLOAT_MARGIN = 8
 
 SCRIPT = """
-var out = "";
+var screen = %d, margin = %d;
+var geo = screenGeometry(screen);
+var out = { screenWidth: geo.width, width: 0, top: geo.height };
+var done = false;
 panels().forEach(function (p) {
-    if (out || p.location != "bottom" || p.screen != %d) return;
+    if (done || p.location != "bottom" || p.screen != screen) return;
+    done = true;
+    var inset = p.floating ? margin : 0;
     var w = 0;
-    if (p.lengthMode == "fill") w = screenGeometry(p.screen).width;
+    if (p.lengthMode == "fill") w = geo.width;
     else if (p.lengthMode == "custom") w = p.maximumLength;
-    if (w) out = String(w - (p.floating ? 2 * %d : 0));
+    out.width = w ? w - 2 * inset : 0;
+    out.top = geo.height - p.height - inset;
 });
-print(out);
+print(JSON.stringify(out));
 """
 
 
@@ -40,11 +49,10 @@ def evaluate(script):
 def main():
     screen = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     try:
-        out = evaluate(SCRIPT % (screen, FLOAT_MARGIN)).strip()
-    except (OSError, subprocess.SubprocessError):
+        out = json.loads(evaluate(SCRIPT % (screen, FLOAT_MARGIN)))
+    except (OSError, subprocess.SubprocessError, ValueError):
         return
-    if out.isdigit():
-        print(out)
+    print(json.dumps(out))
 
 
 if __name__ == "__main__":

@@ -51,8 +51,10 @@ PlasmoidItem {
     readonly property string codeDir: Qt.resolvedUrl("../code/").toString().replace(/^file:\/\//, "")
     readonly property string script: codeDir + "stats.py"
 
-    // Width of the bottom taskbar (0 = unknown), polled when matching is enabled.
-    property int taskbarWidth: 0
+    // Bottom taskbar geometry from panel.py: { screenWidth, width, top }.
+    property var panelInfo: null
+    readonly property bool needPanel: cfg.matchTaskbarWidth || cfg.autoCenter || cfg.snapToTaskbar
+    readonly property int taskbarWidth: panelInfo ? panelInfo.width : 0
     readonly property int forcedWidth: cfg.matchTaskbarWidth && taskbarWidth > 0 ? taskbarWidth : cfg.fixedWidth
 
     function push(arr, v) {
@@ -128,13 +130,17 @@ PlasmoidItem {
         connectedSources: []
         onNewData: (source, data) => {
             disconnectSource(source);
-            root.taskbarWidth = parseInt(data.stdout) || 0;
+            try {
+                root.panelInfo = JSON.parse(data.stdout);
+            } catch (e) {
+                root.panelInfo = null;
+            }
         }
     }
 
     Timer {
         interval: 5000
-        running: root.cfg.matchTaskbarWidth
+        running: root.needPanel
         repeat: true
         triggeredOnStart: true
         onTriggered: {
@@ -395,6 +401,58 @@ PlasmoidItem {
     // ---- desktop (full) view: horizontal strip --------------------------
     fullRepresentation: Item {
         id: full
+
+        // ---- auto positioning ---------------------------------------
+        // Moves the desktop's container for this widget (as dragging it in
+        // edit mode would) and saves the position. Plasma keeps widgets out
+        // of the area reserved for panels and snaps them to a 16 px grid, so
+        // whatever offset is left over is applied as a visual translation.
+        property real shiftX: 0
+        property real shiftY: 0
+        transform: Translate { x: full.shiftX; y: full.shiftY }
+
+        function reposition() {
+            const info = root.panelInfo;
+            if (!info || !(root.cfg.autoCenter || root.cfg.snapToTaskbar)) {
+                shiftX = shiftY = 0;
+                return;
+            }
+            const g = full.mapToGlobal(0, 0);
+            const baseX = g.x - shiftX, baseY = g.y - shiftY;
+            const wantX = root.cfg.autoCenter ? Math.round((info.screenWidth - width) / 2) : baseX;
+            const wantY = root.cfg.snapToTaskbar ? info.top - root.cfg.taskbarGap - height : baseY;
+            let dx = wantX - baseX, dy = wantY - baseY;
+
+            let c = full.parent;
+            while (c && c.layout === undefined) c = c.parent;
+            if (c && c.layout && (Math.abs(dx) >= 1 || Math.abs(dy) >= 1)) {
+                const nx = Math.max(0, Math.min(c.x + dx, c.layout.width - c.width));
+                const ny = Math.max(0, Math.min(c.y + dy, c.layout.height - c.height));
+                if (nx !== c.x || ny !== c.y) {
+                    dx -= nx - c.x;
+                    dy -= ny - c.y;
+                    c.x = nx;
+                    c.y = ny;
+                    c.layout.save();
+                }
+            }
+            shiftX = Math.abs(dx) < 1 ? 0 : dx;
+            shiftY = Math.abs(dy) < 1 ? 0 : dy;
+        }
+
+        onWidthChanged: Qt.callLater(reposition)
+        onHeightChanged: Qt.callLater(reposition)
+        Connections {
+            target: root
+            function onPanelInfoChanged() { Qt.callLater(full.reposition); }
+        }
+        Connections {
+            target: root.cfg
+            function onAutoCenterChanged() { Qt.callLater(full.reposition); }
+            function onSnapToTaskbarChanged() { Qt.callLater(full.reposition); }
+            function onTaskbarGapChanged() { Qt.callLater(full.reposition); }
+        }
+
         // 0 = taskbar SVG, 1 = Plasma widget SVG, 2 = custom rectangle, 3 = none
         readonly property int bgStyle: root.cfg.backgroundStyle
         readonly property bool svgBg: bgStyle <= 1

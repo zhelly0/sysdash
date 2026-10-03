@@ -11,6 +11,9 @@ KCM.SimpleKCM {
     property alias cfg_animations: animationsCtl.checked
     property alias cfg_fixedWidth: widthCtl.value
     property alias cfg_matchTaskbarWidth: matchCtl.checked
+    property alias cfg_autoCenter: centerCtl.checked
+    property alias cfg_snapToTaskbar: snapCtl.checked
+    property alias cfg_taskbarGap: gapCtl.value
     property alias cfg_sectionSpacing: spacingCtl.value
     property alias cfg_fontScale: fontScaleCtl.value
     property alias cfg_backgroundStyle: bgStyleCtl.currentIndex
@@ -78,6 +81,18 @@ KCM.SimpleKCM {
                 opacity: 0.7
                 font: Kirigami.Theme.smallFont
             }
+        }
+        QQC2.CheckBox {
+            id: centerCtl
+            Kirigami.FormData.label: i18n("Position:")
+            text: i18n("Center horizontally on the screen")
+        }
+        QQC2.CheckBox { id: snapCtl; text: i18n("Sit just above the bottom taskbar") }
+        SliderRow {
+            id: gapCtl
+            Kirigami.FormData.label: i18n("Gap above taskbar:")
+            enabled: snapCtl.checked
+            from: 0; to: 64; stepSize: 1; suffix: " px"
         }
         SliderRow { id: spacingCtl; Kirigami.FormData.label: i18n("Section spacing:"); from: 0; to: 32; stepSize: 1; suffix: " px" }
         SliderRow { id: fontScaleCtl; Kirigami.FormData.label: i18n("Text size:"); from: 80; to: 150; stepSize: 5; suffix: " %" }

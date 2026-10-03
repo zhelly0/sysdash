@@ -15,9 +15,13 @@ PlasmoidItem {
     // ---- glass (blurred wallpaper behind tiles/cards) --------------------
     readonly property bool glassOn: cfg.glassStyle > 0
     readonly property real glassBlur: cfg.glassStrength / 100
-    // "Vivid" approximates KWin's background contrast effect on panels.
+    // "Vivid" boosts the colours showing through.
     readonly property real glassSaturation: cfg.glassStyle === 2 ? 0.45 : 0
-    readonly property real glassBrightness: cfg.glassStyle === 2 ? 0.04 : 0
+    readonly property real glassBrightness: 0
+    // Same recipe as the Glass Panel theme: a dark tint keeps light text
+    // readable even over a bright wallpaper.
+    readonly property color glassTint: Qt.rgba(Kirigami.Theme.backgroundColor.r, Kirigami.Theme.backgroundColor.g,
+                                               Kirigami.Theme.backgroundColor.b, cfg.glassTint / 100)
 
 
     // ---- palette -------------------------------------------------------
@@ -404,7 +408,7 @@ PlasmoidItem {
         radius: panelStyle ? 0 : root.cfg.tileRadius
         border.width: root.cfg.tileBorder ? 1 : 0
         border.color: root.cBorder
-        color: panelStyle ? "transparent" : root.cPanel
+        color: panelStyle ? "transparent" : root.glassOn ? root.glassTint : root.cPanel
         GlassBackdrop {
             anchors.fill: parent
             z: -2

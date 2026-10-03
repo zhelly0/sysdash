@@ -31,6 +31,7 @@
     <!-- 0 = off, 1 = frosted, 2 = frosted vivid (like KWin's panel blur + contrast) -->
     <entry name="glassStyle" type="Int"><default>0</default></entry>
     <entry name="glassStrength" type="Int"><default>70</default></entry>
+    <entry name="glassTint" type="Int"><default>50</default></entry>
     <entry name="tileOpacity" type="Int"><default>4</default></entry>
     <entry name="tileRadius" type="Int"><default>12</default></entry>
   </group>

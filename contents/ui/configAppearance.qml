@@ -25,6 +25,7 @@ KCM.SimpleKCM {
     property alias cfg_tileStyle: tileStyleCtl.currentIndex
     property alias cfg_glassStyle: glassStyleCtl.currentIndex
     property alias cfg_glassStrength: glassStrengthCtl.value
+    property alias cfg_glassTint: glassTintCtl.value
     property alias cfg_tileOpacity: tileOpacityCtl.value
     property alias cfg_tileRadius: tileRadiusCtl.value
 
@@ -151,12 +152,18 @@ KCM.SimpleKCM {
             enabled: glassStyleCtl.currentIndex > 0
             from: 10; to: 100; stepSize: 5; suffix: " %"
         }
+        SliderRow {
+            id: glassTintCtl
+            Kirigami.FormData.label: i18n("Glass tint:")
+            enabled: glassStyleCtl.currentIndex > 0
+            from: 0; to: 90; stepSize: 5; suffix: " %"
+        }
         QQC2.ComboBox {
             id: tileStyleCtl
             Kirigami.FormData.label: i18n("Tile style:")
             model: [i18n("Tint"), i18n("Match taskbar")]
         }
-        SliderRow { enabled: tileStyleCtl.currentIndex === 0; id: tileOpacityCtl; Kirigami.FormData.label: i18n("Tile tint:"); from: 0; to: 20; stepSize: 1; suffix: " %" }
+        SliderRow { enabled: tileStyleCtl.currentIndex === 0 && glassStyleCtl.currentIndex === 0; id: tileOpacityCtl; Kirigami.FormData.label: i18n("Tile tint:"); from: 0; to: 20; stepSize: 1; suffix: " %" }
         SliderRow { enabled: tileStyleCtl.currentIndex === 0; id: tileRadiusCtl; Kirigami.FormData.label: i18n("Tile corner radius:"); from: 0; to: 24; stepSize: 1; suffix: " px" }
         QQC2.CheckBox { id: tileBorderCtl; Kirigami.FormData.label: i18n("Tile border:"); text: i18n("Thin border around each section") }
     }

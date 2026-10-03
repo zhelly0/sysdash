@@ -37,6 +37,7 @@
     <entry name="showTemps" type="Bool"><default>true</default></entry>
     <entry name="showCoreBars" type="Bool"><default>true</default></entry>
     <entry name="showCpuDetails" type="Bool"><default>true</default></entry>
+    <entry name="showCcdTemp" type="Bool"><default>false</default></entry>
     <entry name="showIgpuTemp" type="Bool"><default>false</default></entry>
     <entry name="showGpuDetails" type="Bool"><default>true</default></entry>
     <entry name="showVram" type="Bool"><default>true</default></entry>

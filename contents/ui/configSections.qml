@@ -14,6 +14,7 @@ KCM.SimpleKCM {
     property alias cfg_showCoreBars: showCoreBars.checked
     property alias cfg_showCpuDetails: showCpuDetails.checked
     property alias cfg_showIgpuTemp: showIgpuTemp.checked
+    property alias cfg_showCcdTemp: showCcdTemp.checked
     property alias cfg_showGpuDetails: showGpuDetails.checked
     property alias cfg_showVram: showVram.checked
     property alias cfg_showDimmTemps: showDimmTemps.checked
@@ -38,6 +39,7 @@ KCM.SimpleKCM {
         Kirigami.Separator { Kirigami.FormData.isSection: true; Kirigami.FormData.label: i18n("CPU") }
         QQC2.CheckBox { id: showCpuDetails; Kirigami.FormData.label: i18n("Show:"); text: i18n("Model, clock and load") }
         QQC2.CheckBox { id: showCoreBars; text: i18n("Per-thread usage bars") }
+        QQC2.CheckBox { id: showCcdTemp; text: i18n("Core chiplet temperature (AMD)") }
         QQC2.CheckBox { id: showIgpuTemp; text: i18n("Integrated graphics temperature") }
 
         Kirigami.Separator { Kirigami.FormData.isSection: true; Kirigami.FormData.label: i18n("GPU") }

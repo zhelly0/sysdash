@@ -177,7 +177,7 @@ PlasmoidItem {
         Text {
             id: pillText
             anchors.centerIn: parent
-            text: parent.label + " " + (isNaN(parent.temp) ? "–" : Math.round(parent.temp) + "°")
+            text: (parent.label ? parent.label + " " : "") + (isNaN(parent.temp) ? "–" : Math.round(parent.temp) + "°")
             color: parent.tc
             font.pixelSize: root.px(11)
             font.weight: Font.DemiBold
@@ -195,9 +195,13 @@ PlasmoidItem {
         spacing: 4
         Caption { text: parent.title; color: parent.accent }
         Item { Layout.fillWidth: true }
+        // Count-based models keep delegates alive between refreshes, so values
+        // update (and animate) in place instead of being rebuilt every tick.
         Repeater {
-            model: root.cfg.showTemps ? parent.temps : []
-            Pill { label: modelData.label; temp: modelData.temp ?? NaN }
+            id: pills
+            readonly property var temps: parent.temps
+            model: root.cfg.showTemps ? temps.length : 0
+            Pill { label: pills.temps[index].label; temp: pills.temps[index].temp ?? NaN }
         }
     }
 
@@ -441,8 +445,8 @@ PlasmoidItem {
                     // Tctl = AMD's package/control temperature, Tccd = the core chiplet.
                     // The integrated Radeon graphics lives on the CPU too, so it's shown here.
                     temps: [
-                        { label: "Pkg", temp: root.cpu.temp },
-                        { label: "Cores", temp: root.cpu.ccd },
+                        { label: "", temp: root.cpu.temp },
+                        { label: "Cores", temp: root.cfg.showCcdTemp ? root.cpu.ccd : null },
                         { label: "iGPU", temp: root.cfg.showIgpuTemp && root.stats.igpu ? root.stats.igpu.temp : null }
                     ].filter(t => t.temp !== undefined && t.temp !== null)
                 }
@@ -464,8 +468,9 @@ PlasmoidItem {
                         spacing: 3
                         readonly property int n: Math.max(root.cpu.cores.length, 1)
                         Repeater {
-                            model: root.cpu.cores
+                            model: root.cpu.cores.length
                             Rectangle {
+                                readonly property real usage: root.cpu.cores[index] || 0
                                 width: (coreRow.width - coreRow.spacing * (coreRow.n - 1)) / coreRow.n
                                 height: coreRow.height
                                 radius: 2
@@ -473,10 +478,10 @@ PlasmoidItem {
                                 Rectangle {
                                     anchors.bottom: parent.bottom
                                     width: parent.width
-                                    height: Math.max(2, parent.height * modelData / 100)
+                                    height: Math.max(2, parent.height * parent.usage / 100)
                                     radius: 2
                                     color: root.cCpu
-                                    opacity: 0.45 + 0.55 * modelData / 100
+                                    opacity: 0.45 + 0.55 * parent.usage / 100
                                     Behavior on height { enabled: root.anim; NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                                 }
                             }
@@ -493,7 +498,7 @@ PlasmoidItem {
                 Header {
                     title: "GPU"
                     accent: root.cGpu
-                    temps: [{ label: "Die", temp: root.gpu.temp }]
+                    temps: [{ label: "", temp: root.gpu.temp }]
                 }
                 Hero {
                     value: root.gpu.usage || 0
@@ -551,12 +556,13 @@ PlasmoidItem {
                     temps: storage.shown.map(d => ({ label: root.diskLabel(d), temp: d.temp }))
                 }
                 Repeater {
-                    model: storage.shown
+                    model: storage.shown.length
                     Metric {
-                        label: modelData.name
-                        sub: root.diskLabel(modelData)
-                        value: modelData.total ? Math.round(modelData.used / 1e9) + " / " + Math.round(modelData.total / 1e9) + " GB" : "not mounted"
-                        frac: modelData.total ? modelData.used / modelData.total : 0
+                        readonly property var disk: storage.shown[index] || ({})
+                        label: disk.name || ""
+                        sub: root.diskLabel(disk)
+                        value: disk.total ? Math.round(disk.used / 1e9) + " / " + Math.round(disk.total / 1e9) + " GB" : "not mounted"
+                        frac: disk.total ? disk.used / disk.total : 0
                         accent: root.cDisk
                     }
                 }

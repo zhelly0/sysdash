@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+
+  <group name="General">
+    <entry name="updateInterval" type="Int"><default>1000</default></entry>
+    <entry name="historySeconds" type="Int"><default>120</default></entry>
+    <entry name="animations" type="Bool"><default>true</default></entry>
+    <!-- 0 = size to content -->
+    <entry name="fixedWidth" type="Int"><default>0</default></entry>
+    <entry name="matchTaskbarWidth" type="Bool"><default>false</default></entry>
+    <entry name="sectionSpacing" type="Int"><default>10</default></entry>
+    <entry name="fontScale" type="Int"><default>100</default></entry>
+  </group>
+
+  <group name="Background">
+    <!-- 0 = taskbar, 1 = Plasma widget, 2 = custom, 3 = none -->
+    <entry name="backgroundStyle" type="Int"><default>0</default></entry>
+    <entry name="customBgColor" type="Color"><default>#1b1e24</default></entry>
+    <entry name="customBgOpacity" type="Int"><default>85</default></entry>
+    <entry name="cornerRadius" type="Int"><default>12</default></entry>
+    <entry name="customBorder" type="Bool"><default>true</default></entry>
+    <entry name="tileOpacity" type="Int"><default>4</default></entry>
+    <entry name="tileRadius" type="Int"><default>12</default></entry>
+  </group>
+
+  <group name="Sections">
+    <entry name="showCpu" type="Bool"><default>true</default></entry>
+    <entry name="showGpu" type="Bool"><default>true</default></entry>
+    <entry name="showMemory" type="Bool"><default>true</default></entry>
+    <entry name="showStorage" type="Bool"><default>true</default></entry>
+    <entry name="showNetwork" type="Bool"><default>true</default></entry>
+
+    <entry name="showGraphs" type="Bool"><default>true</default></entry>
+    <entry name="showTemps" type="Bool"><default>true</default></entry>
+    <entry name="showCoreBars" type="Bool"><default>true</default></entry>
+    <entry name="showCpuDetails" type="Bool"><default>true</default></entry>
+    <entry name="showIgpuTemp" type="Bool"><default>false</default></entry>
+    <entry name="showGpuDetails" type="Bool"><default>true</default></entry>
+    <entry name="showVram" type="Bool"><default>true</default></entry>
+    <entry name="showDimmTemps" type="Bool"><default>true</default></entry>
+    <entry name="showCache" type="Bool"><default>true</default></entry>
+    <entry name="showSwap" type="Bool"><default>true</default></entry>
+    <entry name="showAllDisks" type="Bool"><default>true</default></entry>
+    <entry name="showDiskIo" type="Bool"><default>true</default></entry>
+    <entry name="showUptime" type="Bool"><default>true</default></entry>
+  </group>
+
+  <group name="Colors">
+    <entry name="useThemeColors" type="Bool"><default>true</default></entry>
+    <entry name="cpuColor" type="Color"><default>#3daee9</default></entry>
+    <entry name="gpuColor" type="Color"><default>#27ae60</default></entry>
+    <entry name="memColor" type="Color"><default>#9b59b6</default></entry>
+    <entry name="diskColor" type="Color"><default>#f67400</default></entry>
+    <entry name="netColor" type="Color"><default>#2980b9</default></entry>
+    <entry name="outColor" type="Color"><default>#a66bd8</default></entry>
+    <entry name="tempWarm" type="Int"><default>50</default></entry>
+    <entry name="tempHot" type="Int"><default>70</default></entry>
+    <entry name="tempCritical" type="Int"><default>85</default></entry>
+    <entry name="graphLineWidth" type="Int"><default>15</default></entry>
+    <entry name="graphFillOpacity" type="Int"><default>28</default></entry>
+  </group>
+</kcfg>

@@ -25,6 +25,7 @@
     <entry name="customBgOpacity" type="Int"><default>85</default></entry>
     <entry name="cornerRadius" type="Int"><default>12</default></entry>
     <entry name="customBorder" type="Bool"><default>true</default></entry>
+    <entry name="tileBorder" type="Bool"><default>false</default></entry>
     <entry name="tileOpacity" type="Int"><default>4</default></entry>
     <entry name="tileRadius" type="Int"><default>12</default></entry>
   </group>

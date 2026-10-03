@@ -390,6 +390,8 @@ PlasmoidItem {
         Layout.minimumWidth: 0
         clip: true
         radius: root.cfg.tileRadius
+        border.width: root.cfg.tileBorder ? 1 : 0
+        border.color: root.cBorder
         color: root.cPanel
         ColumnLayout {
             id: inner

@@ -21,6 +21,7 @@ KCM.SimpleKCM {
     property alias cfg_customBgOpacity: bgOpacityCtl.value
     property alias cfg_cornerRadius: radiusCtl.value
     property alias cfg_customBorder: borderCtl.checked
+    property alias cfg_tileBorder: tileBorderCtl.checked
     property alias cfg_tileOpacity: tileOpacityCtl.value
     property alias cfg_tileRadius: tileRadiusCtl.value
 
@@ -121,11 +122,23 @@ KCM.SimpleKCM {
             enabled: bgStyleCtl.currentIndex === 2
             from: 0; to: 32; stepSize: 1; suffix: " px"
         }
-        QQC2.CheckBox { id: borderCtl; text: i18n("Thin border"); enabled: bgStyleCtl.currentIndex === 2 }
+        QQC2.CheckBox {
+            id: borderCtl
+            Kirigami.FormData.label: i18n("Border:")
+            text: i18n("Thin border around the background")
+            enabled: bgStyleCtl.currentIndex === 2
+        }
+        QQC2.Label {
+            text: i18n("Custom style only; the theme styles draw their own edges.")
+            visible: bgStyleCtl.currentIndex !== 2
+            opacity: 0.7
+            font: Kirigami.Theme.smallFont
+        }
 
         Kirigami.Separator { Kirigami.FormData.isSection: true; Kirigami.FormData.label: i18n("Section tiles") }
 
         SliderRow { id: tileOpacityCtl; Kirigami.FormData.label: i18n("Tile tint:"); from: 0; to: 20; stepSize: 1; suffix: " %" }
         SliderRow { id: tileRadiusCtl; Kirigami.FormData.label: i18n("Tile corner radius:"); from: 0; to: 24; stepSize: 1; suffix: " px" }
+        QQC2.CheckBox { id: tileBorderCtl; Kirigami.FormData.label: i18n("Tile border:"); text: i18n("Thin border around each section") }
     }
 }

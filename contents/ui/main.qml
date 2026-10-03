@@ -12,6 +12,13 @@ PlasmoidItem {
     readonly property var cfg: Plasmoid.configuration
     readonly property real fs: cfg.fontScale / 100
     readonly property bool anim: cfg.animations
+    // ---- glass (blurred wallpaper behind tiles/cards) --------------------
+    readonly property bool glassOn: cfg.glassStyle > 0
+    readonly property real glassBlur: cfg.glassStrength / 100
+    // "Vivid" approximates KWin's background contrast effect on panels.
+    readonly property real glassSaturation: cfg.glassStyle === 2 ? 0.45 : 0
+    readonly property real glassBrightness: cfg.glassStyle === 2 ? 0.04 : 0
+
 
     // ---- palette -------------------------------------------------------
     // By default everything derives from the active Plasma colour scheme, so
@@ -398,6 +405,15 @@ PlasmoidItem {
         border.width: root.cfg.tileBorder ? 1 : 0
         border.color: root.cBorder
         color: panelStyle ? "transparent" : root.cPanel
+        GlassBackdrop {
+            anchors.fill: parent
+            z: -2
+            visible: root.glassOn
+            radius: parent.panelStyle ? 4 : parent.radius
+            blurAmount: root.glassBlur
+            saturation: root.glassSaturation
+            brightness: root.glassBrightness
+        }
         KSvg.FrameSvgItem {
             anchors.fill: parent
             z: -1

@@ -23,6 +23,8 @@ KCM.SimpleKCM {
     property alias cfg_customBorder: borderCtl.checked
     property alias cfg_tileBorder: tileBorderCtl.checked
     property alias cfg_tileStyle: tileStyleCtl.currentIndex
+    property alias cfg_glassStyle: glassStyleCtl.currentIndex
+    property alias cfg_glassStrength: glassStrengthCtl.value
     property alias cfg_tileOpacity: tileOpacityCtl.value
     property alias cfg_tileRadius: tileRadiusCtl.value
 
@@ -138,6 +140,17 @@ KCM.SimpleKCM {
 
         Kirigami.Separator { Kirigami.FormData.isSection: true; Kirigami.FormData.label: i18n("Section tiles") }
 
+        QQC2.ComboBox {
+            id: glassStyleCtl
+            Kirigami.FormData.label: i18n("Glass:")
+            model: [i18n("Off"), i18n("Frosted"), i18n("Frosted vivid (like the taskbar)")]
+        }
+        SliderRow {
+            id: glassStrengthCtl
+            Kirigami.FormData.label: i18n("Blur strength:")
+            enabled: glassStyleCtl.currentIndex > 0
+            from: 10; to: 100; stepSize: 5; suffix: " %"
+        }
         QQC2.ComboBox {
             id: tileStyleCtl
             Kirigami.FormData.label: i18n("Tile style:")

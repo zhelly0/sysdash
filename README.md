@@ -6,6 +6,7 @@ a bottom taskbar.
 
 ![SysDash above a Plasma taskbar](docs/screenshot.png)
 
+- Optional frosted-glass tiles/cards: the wallpaper behind them is blurred (Off / Frosted / Frosted vivid, with a strength slider)
 - CPU usage gauge, clock, load, per-thread bars, package/core temperatures
 - NVIDIA GPU usage, clock, fan, power, VRAM and temperature (read via NVML, no `nvidia-smi` needed)
 - RAM (with cache), swap and RAM stick temperatures (DDR5 `spd5118` sensors)

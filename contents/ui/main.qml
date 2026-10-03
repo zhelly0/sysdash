@@ -158,6 +158,7 @@ PlasmoidItem {
     // Every section is: Header → hero/Metric rows → Spark filling the rest.
 
     component Caption: Text {
+        elide: Text.ElideRight
         color: root.cDim
         font.pixelSize: root.px(11)
         font.letterSpacing: 1.2
@@ -166,6 +167,7 @@ PlasmoidItem {
     }
 
     component Value: Text {
+        elide: Text.ElideRight
         color: root.cText
         font.pixelSize: root.px(12)
         font.features: { "tnum": 1 }
@@ -193,21 +195,30 @@ PlasmoidItem {
 
     // Section title on the left, labelled temperature pills on the right.
     component Header: RowLayout {
+        id: header
         property string title
         property color accent
         property var temps: []      // [{ label, temp }]
         Layout.fillWidth: true
         Layout.preferredHeight: root.px(20)
         spacing: 4
-        Caption { text: parent.title; color: parent.accent }
+        Caption { id: caption; text: header.title; color: header.accent }
         Item { Layout.fillWidth: true }
-        // Count-based models keep delegates alive between refreshes, so values
-        // update (and animate) in place instead of being rebuilt every tick.
-        Repeater {
-            id: pills
-            readonly property var temps: parent.temps
-            model: root.cfg.showTemps ? temps.length : 0
-            Pill { label: pills.temps[index].label; temp: pills.temps[index].temp ?? NaN }
+        Row {
+            id: pillRow
+            // Hide all pills rather than squashing them when space runs out.
+            readonly property bool fits: header.width >= caption.implicitWidth + implicitWidth + 12
+            Layout.preferredWidth: fits ? implicitWidth : 0
+            Layout.preferredHeight: implicitHeight
+            opacity: fits ? 1 : 0
+            clip: true
+            spacing: 4
+            // Count-based models keep delegates alive between refreshes, so values
+            // update (and animate) in place instead of being rebuilt every tick.
+            Repeater {
+                model: root.cfg.showTemps ? header.temps.length : 0
+                Pill { label: header.temps[index].label; temp: header.temps[index].temp ?? NaN }
+            }
         }
     }
 
@@ -252,7 +263,7 @@ PlasmoidItem {
             Value { text: parent.parent.label; color: root.cDim }
             Value { text: parent.parent.sub; color: root.cDim; opacity: 0.7; font.pixelSize: root.px(11); visible: text !== "" }
             Item { Layout.fillWidth: true }
-            Value { text: parent.parent.value; color: parent.parent.valueColor }
+            Value { text: parent.parent.value; color: parent.parent.valueColor; Layout.minimumWidth: implicitWidth }
         }
         Bar {
             Layout.fillWidth: true
@@ -310,14 +321,20 @@ PlasmoidItem {
         property string line3
         Layout.fillWidth: true
         spacing: 12
-        Ring { value: parent.value; accent: parent.accent }
+        Ring {
+            value: parent.value
+            accent: parent.accent
+            Layout.minimumWidth: implicitWidth
+            Layout.minimumHeight: implicitHeight
+        }
         ColumnLayout {
             Layout.fillWidth: true
+            Layout.minimumWidth: 0
             visible: parent.details
             spacing: 3
-            Value { text: parent.parent.line1; font.pixelSize: root.px(13); font.weight: Font.DemiBold }
-            Value { text: parent.parent.line2; color: root.cDim }
-            Value { text: parent.parent.line3; color: root.cDim }
+            Value { Layout.fillWidth: true; text: parent.parent.line1; font.pixelSize: root.px(13); font.weight: Font.DemiBold }
+            Value { Layout.fillWidth: true; text: parent.parent.line2; color: root.cDim }
+            Value { Layout.fillWidth: true; text: parent.parent.line3; color: root.cDim }
         }
     }
 
@@ -370,6 +387,8 @@ PlasmoidItem {
         default property alias content: inner.data
         Layout.fillHeight: true
         Layout.fillWidth: root.forcedWidth > 0
+        Layout.minimumWidth: 0
+        clip: true
         radius: root.cfg.tileRadius
         color: root.cPanel
         ColumnLayout {
@@ -411,21 +430,53 @@ PlasmoidItem {
         property real shiftY: 0
         transform: Translate { x: full.shiftX; y: full.shiftY }
 
+        // The desktop's container item for this widget (has .layout).
+        readonly property Item container: {
+            let c = full.parent;
+            while (c && c.layout === undefined) c = c.parent;
+            return c;
+        }
+        // Global edit mode, or the per-widget edit mode from press-and-hold.
+        readonly property bool editing: (Plasmoid.containment && Plasmoid.containment.corona
+                                         && Plasmoid.containment.corona.editMode)
+                                        || (container !== null && container.editMode === true)
+        // Plasma grows the container to fit Layout.minimum* but never shrinks it,
+        // so the widget sizes its container itself.
+        readonly property real wantWidth: root.forcedWidth > 0 ? root.forcedWidth : autoWidth
+        readonly property real wantHeight: Layout.preferredHeight
+
+        onEditingChanged: {
+            // Drop the visual shift so edit handles line up with the widget;
+            // re-apply the layout once editing ends.
+            if (editing) shiftX = shiftY = 0;
+            else Qt.callLater(reposition);
+        }
+
         function reposition() {
+            const c = container;
+            if (editing || !c || !c.layout) return;
+            let changed = false;
+
+            const dw = wantWidth - width, dh = wantHeight - height;
+            if (Math.abs(dw) >= 1 || Math.abs(dh) >= 1) {
+                c.width += dw;
+                c.height += dh;
+                changed = true;
+            }
+
             const info = root.panelInfo;
             if (!info || !(root.cfg.autoCenter || root.cfg.snapToTaskbar)) {
                 shiftX = shiftY = 0;
+                if (changed) c.layout.save();
                 return;
             }
             const g = full.mapToGlobal(0, 0);
             const baseX = g.x - shiftX, baseY = g.y - shiftY;
-            const wantX = root.cfg.autoCenter ? Math.round((info.screenWidth - width) / 2) : baseX;
-            const wantY = root.cfg.snapToTaskbar ? info.top - root.cfg.taskbarGap - height : baseY;
+            const wantX = root.cfg.autoCenter ? Math.round((info.screenWidth - wantWidth) / 2) : baseX;
+            const wantY = root.cfg.snapToTaskbar ? info.top - root.cfg.taskbarGap - wantHeight : baseY;
             let dx = wantX - baseX, dy = wantY - baseY;
 
-            let c = full.parent;
-            while (c && c.layout === undefined) c = c.parent;
-            if (c && c.layout && (Math.abs(dx) >= 1 || Math.abs(dy) >= 1)) {
+            if (Math.abs(dx) >= 1 || Math.abs(dy) >= 1) {
                 const nx = Math.max(0, Math.min(c.x + dx, c.layout.width - c.width));
                 const ny = Math.max(0, Math.min(c.y + dy, c.layout.height - c.height));
                 if (nx !== c.x || ny !== c.y) {
@@ -433,13 +484,16 @@ PlasmoidItem {
                     dy -= ny - c.y;
                     c.x = nx;
                     c.y = ny;
-                    c.layout.save();
+                    changed = true;
                 }
             }
+            if (changed) c.layout.save();
             shiftX = Math.abs(dx) < 1 ? 0 : dx;
             shiftY = Math.abs(dy) < 1 ? 0 : dy;
         }
 
+        onWantWidthChanged: Qt.callLater(reposition)
+        onWantHeightChanged: Qt.callLater(reposition)
         onWidthChanged: Qt.callLater(reposition)
         onHeightChanged: Qt.callLater(reposition)
         Connections {
@@ -630,8 +684,8 @@ PlasmoidItem {
                     Value { text: "I/O"; color: root.cDim }
                     Value { text: "/"; color: root.cDim; opacity: 0.7; font.pixelSize: root.px(11) }
                     Item { Layout.fillWidth: true }
-                    Value { text: "R " + root.rate(root.rootDisk.read); color: root.cDisk }
-                    Value { text: "W " + root.rate(root.rootDisk.write); color: root.cOut; leftPadding: 8 }
+                    Value { text: "R " + root.rate(root.rootDisk.read); color: root.cDisk; Layout.minimumWidth: implicitWidth }
+                    Value { text: "W " + root.rate(root.rootDisk.write); color: root.cOut; leftPadding: 8; Layout.minimumWidth: implicitWidth }
                 }
                 Spark {
                     visible: root.cfg.showGraphs && root.cfg.showDiskIo

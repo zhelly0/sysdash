@@ -4,6 +4,8 @@ A KDE Plasma 6 desktop widget that shows CPU, GPU, memory, storage and network
 stats with temperatures, laid out as a horizontal strip that sits nicely above
 a bottom taskbar.
 
+![SysDash above a Plasma taskbar](docs/screenshot.png)
+
 - CPU usage gauge, clock, load, per-thread bars, package/core temperatures
 - NVIDIA GPU usage, clock, fan, power, VRAM and temperature (read via NVML, no `nvidia-smi` needed)
 - RAM (with cache), swap and RAM stick temperatures (DDR5 `spd5118` sensors)
@@ -41,7 +43,7 @@ Intel (`coretemp`) CPUs are supported.
 The folder name must match the plugin id:
 
 ```sh
-git clone https://github.com/zhelly0/sysdash ~/.local/share/plasma/plasmoids/com.milton.sysdash
+git clone https://github.com/zhelly0/sysdash ~/.local/share/plasma/plasmoids/com.github.zhelly0.sysdash
 ```
 
 Then right-click the desktop → **Add Widgets…** → search for **SysDash**. If it

@@ -5,7 +5,7 @@
         "Category": "System Information",
         "Description": "CPU, GPU, memory, disk and network stats with temperatures",
         "Icon": "utilities-system-monitor",
-        "Id": "com.milton.sysdash",
+        "Id": "com.github.zhelly0.sysdash",
         "License": "GPL-3.0",
         "Name": "SysDash",
         "Version": "1.0"

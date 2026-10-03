@@ -24,8 +24,10 @@ Right-click the widget → **Configure SysDash…**
 - **Appearance:** refresh rate, graph history length, animations, width
   (auto, fixed, or *match the bottom taskbar*), auto-centering, sitting a
   set gap above the taskbar, spacing, text size,
-  background style (match taskbar / Plasma widget / custom color, opacity and
-  corner radius / none), section tile tint and radius
+  background style (match taskbar / Plasma widget / custom color, opacity,
+  corner radius and border / none), glass (off / frosted / frosted vivid, blur
+  strength, tint), section tile style (tint / match taskbar), tint, radius and
+  border
 - **Sections:** show or hide each section and almost every element in it
 - **Colors:** theme colors or custom per-section colors, temperature
   thresholds, graph line width and fill

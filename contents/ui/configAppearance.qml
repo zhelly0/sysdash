@@ -22,6 +22,7 @@ KCM.SimpleKCM {
     property alias cfg_cornerRadius: radiusCtl.value
     property alias cfg_customBorder: borderCtl.checked
     property alias cfg_tileBorder: tileBorderCtl.checked
+    property alias cfg_tileStyle: tileStyleCtl.currentIndex
     property alias cfg_tileOpacity: tileOpacityCtl.value
     property alias cfg_tileRadius: tileRadiusCtl.value
 
@@ -137,8 +138,13 @@ KCM.SimpleKCM {
 
         Kirigami.Separator { Kirigami.FormData.isSection: true; Kirigami.FormData.label: i18n("Section tiles") }
 
-        SliderRow { id: tileOpacityCtl; Kirigami.FormData.label: i18n("Tile tint:"); from: 0; to: 20; stepSize: 1; suffix: " %" }
-        SliderRow { id: tileRadiusCtl; Kirigami.FormData.label: i18n("Tile corner radius:"); from: 0; to: 24; stepSize: 1; suffix: " px" }
+        QQC2.ComboBox {
+            id: tileStyleCtl
+            Kirigami.FormData.label: i18n("Tile style:")
+            model: [i18n("Tint"), i18n("Match taskbar")]
+        }
+        SliderRow { enabled: tileStyleCtl.currentIndex === 0; id: tileOpacityCtl; Kirigami.FormData.label: i18n("Tile tint:"); from: 0; to: 20; stepSize: 1; suffix: " %" }
+        SliderRow { enabled: tileStyleCtl.currentIndex === 0; id: tileRadiusCtl; Kirigami.FormData.label: i18n("Tile corner radius:"); from: 0; to: 24; stepSize: 1; suffix: " px" }
         QQC2.CheckBox { id: tileBorderCtl; Kirigami.FormData.label: i18n("Tile border:"); text: i18n("Thin border around each section") }
     }
 }

@@ -88,7 +88,10 @@ PlasmoidItem {
     }
 
     function diskLabel(d) {
-        return d.mount === "/" ? "/" : (d.mount || "").split("/").pop();
+        if (d.mount === "/") return "/";
+        if (d.mount) return d.mount.split("/").pop();
+        // Not mounted: fall back to the last word of the model name ("Force MP510" -> "MP510").
+        return (d.name || "").trim().split(" ").pop();
     }
 
     function px(n) { return Math.round(n * fs); }
@@ -389,10 +392,18 @@ PlasmoidItem {
         Layout.fillWidth: root.forcedWidth > 0
         Layout.minimumWidth: 0
         clip: true
-        radius: root.cfg.tileRadius
+        // tileStyle 0 = tint, 1 = the taskbar's own background graphics.
+        readonly property bool panelStyle: root.cfg.tileStyle === 1
+        radius: panelStyle ? 0 : root.cfg.tileRadius
         border.width: root.cfg.tileBorder ? 1 : 0
         border.color: root.cBorder
-        color: root.cPanel
+        color: panelStyle ? "transparent" : root.cPanel
+        KSvg.FrameSvgItem {
+            anchors.fill: parent
+            z: -1
+            visible: parent.panelStyle
+            imagePath: "widgets/panel-background"
+        }
         ColumnLayout {
             id: inner
             anchors.top: parent.top
@@ -512,11 +523,15 @@ PlasmoidItem {
         // 0 = taskbar SVG, 1 = Plasma widget SVG, 2 = custom rectangle, 3 = none
         readonly property int bgStyle: root.cfg.backgroundStyle
         readonly property bool svgBg: bgStyle <= 1
-        readonly property real customPad: Math.max(8, root.cfg.cornerRadius / 2)
-        readonly property real padL: svgBg ? frame.margins.left + 4 : bgStyle === 2 ? customPad : 0
-        readonly property real padR: svgBg ? frame.margins.right + 4 : bgStyle === 2 ? customPad : 0
-        readonly property real padT: svgBg ? frame.margins.top + 4 : bgStyle === 2 ? customPad : 0
-        readonly property real padB: svgBg ? frame.margins.bottom + 4 : bgStyle === 2 ? customPad : 0
+        // A custom background at 0% opacity without a border is invisible, so it
+        // shouldn't reserve padding either: the tiles' outer edges then line up
+        // with whatever the widget is sized against (e.g. the taskbar).
+        readonly property bool customVisible: bgStyle === 2 && (root.cfg.customBgOpacity > 0 || root.cfg.customBorder)
+        readonly property real customPad: customVisible ? Math.max(8, root.cfg.cornerRadius / 2) : 0
+        readonly property real padL: svgBg ? frame.margins.left + 4 : customPad
+        readonly property real padR: svgBg ? frame.margins.right + 4 : customPad
+        readonly property real padT: svgBg ? frame.margins.top + 4 : customPad
+        readonly property real padB: svgBg ? frame.margins.bottom + 4 : customPad
 
         readonly property real autoWidth: body.implicitWidth + padL + padR
         Layout.minimumWidth: root.forcedWidth > 0 ? root.forcedWidth : autoWidth
